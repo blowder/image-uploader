@@ -2,6 +2,7 @@ package dao;
 
 import java.util.List;
 
+
 public interface BaseDao<E, N> {
 	E findById(N id);
 

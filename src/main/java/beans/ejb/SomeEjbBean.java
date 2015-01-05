@@ -3,8 +3,8 @@ package beans.ejb;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import model.Role;
 import model.Users;
@@ -13,9 +13,9 @@ import dao.UsersDao;
 
 @Stateless
 public class SomeEjbBean {
-	@Inject
+	@EJB
 	RoleDao roleDao;
-	@Inject
+	@EJB
 	UsersDao userDao;
 
 	public SomeEjbBean() {
@@ -28,6 +28,7 @@ public class SomeEjbBean {
 
 	public void testEntityManager() {
 		roleDao.save(new Role("asdasd"));
+
 		Users user = new Users();
 		user.setEmail("troll@mail.ru");
 		List<Role> roles = new ArrayList<Role>();
