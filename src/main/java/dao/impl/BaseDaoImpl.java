@@ -2,9 +2,10 @@ package dao.impl;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
 
 import dao.BaseDao;
 
@@ -18,37 +19,72 @@ public abstract class BaseDaoImpl<E, N extends Number> implements BaseDao<E, N> 
 
 	@PersistenceContext(unitName = "main_unit")
 	protected EntityManager entityManager;
+	@Resource
+	UserTransaction trx;
 
 	@SuppressWarnings("unchecked")
 	public E findById(N id) {
 		try {
-			return (E) entityManager
+			E result = null;
+			trx.begin();
+			result = (E) entityManager
 					.createQuery(
 							"select e from " + entityClass.getSimpleName()
 									+ " e where e.id = :id")
 					.setParameter("id", id).getSingleResult();
-		} catch (NoResultException e) {
+			trx.commit();
+			return result;
+		} catch (Exception e) {
 			return null;
 		}
 	}
 
 	public void save(E entity) {
-		entityManager.persist(entity);
-		entityManager.flush();
+		try {
+			trx.begin();
+			entityManager.persist(entity);
+			entityManager.flush();
+			trx.commit();
+		} catch (Exception e) {
+
+		}
 	}
 
 	public void remove(E entity) {
-		entityManager.remove(entityManager.merge(entity));
+		try {
+			trx.begin();
+			entityManager.remove(entityManager.merge(entity));
+			trx.commit();
+		} catch (Exception e) {
+
+		}
 	}
 
 	public E update(E entity) {
-		return entityManager.merge(entity);
+		try {
+			E result = null;
+			trx.begin();
+			result = entityManager.merge(entity);
+			trx.commit();
+			return result;
+		} catch (Exception e) {
+			return null;
+		}
+
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<E> findAll() {
-		return entityManager.createQuery("from " + entityClass.getSimpleName())
-				.getResultList();
+		try {
+			List<E> result = null;
+			trx.begin();
+			result = entityManager.createQuery(
+					"from " + entityClass.getSimpleName()).getResultList();
+			trx.commit();
+			return result;
+		} catch (Exception e) {
+			return null;
+		}
 
 	}
 }
